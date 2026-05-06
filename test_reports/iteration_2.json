@@ -1,0 +1,34 @@
+{
+  "summary": "Sprint 1D.1 Inspector Auto Requests Gate — backend-only testing. 16/17 pytest cases passed (94%). Capability gate works correctly: 401 unauth, 403 for admin (caps=[]) with body containing 'capability required (inspect)', 403 for customer on ALL 11 gated endpoints, 200 for provider_owner. Dual-write of `inspectorAccountId` to inspection_jobs and inspection_reports is verified at the Mongo level for claim/on-route/arrived/start-inspection/report/cancel transitions. Ownership still enforced by service layer (provider B → 403 on provider A's job). Sprint 1C smoke (login/register/me/switch-account) and biz endpoints (/api/health, /api/cities, /api/marketplace/providers, /api/admin-panel/, /api/web-app/) all green. ONE BUG: claim endpoint response does NOT include `inspectorAccountId` field even though Mongo doc is updated correctly.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {
+        "endpoint": "POST /api/inspector/jobs/{id}/claim",
+        "issue": "Response payload missing `inspectorAccountId`. Router has `if isinstance(res, dict): res = {**res, 'inspectorAccountId': ...}` but `svc.claim_job` returns a Pydantic `InspectionJobOut` (not a dict), so the branch never executes. Mongo doc is updated correctly via `_set_inspector_account_id`. Spec required the field in the response. Fix: convert via `res.model_dump()` first or check `isinstance(res, BaseModel)`. on-route / arrived / start-inspection / report responses are also affected by similar dict-vs-model handling — only `submit_report` happens to work because `rsvc.submit_report` returns a dict. The lifecycle transition responses (on-route / arrived / start-inspection) return `_job_to_dict(...)` (a real dict) so those response shapes are fine, but the `_set_inspector_account_id` is set AFTER the response payload is built, so the response field still won't show the value unless explicitly added. Verify in code: those endpoints currently `return {'status': 'ok', 'job': job}` where `job` is a plain dict but does NOT contain `inspectorAccountId` (it's only in Mongo)."
+      }
+    ]
+  },
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": [], "react_native_issues": []},
+  "test_report_links": [
+    "/app/backend/tests/test_sprint1d1_inspector_gate.py",
+    "/app/test_reports/pytest/sprint1d1_results.xml"
+  ],
+  "action_items": [
+    "Fix claim endpoint (router_inspector.py:117): the `isinstance(res, dict)` branch never fires because `svc.claim_job` returns a Pydantic `InspectionJobOut`. Either: (a) call `res = res.model_dump() if not isinstance(res, dict) else res` before the merge, or (b) explicitly include `inspectorAccountId` in the response: `return {'status': 'ok', 'job': {**(res.model_dump() if hasattr(res,'model_dump') else res), 'inspectorAccountId': ctx.account.id}}`.",
+    "Consider also surfacing `inspectorAccountId` in the response of /on-route, /arrived, /start-inspection (currently those return only the dict from `rsvc.transition_status`, which is built BEFORE `_set_inspector_account_id` runs, so the field is missing from the response even though mongo is correct). Spec says 'transitions … re-confirm inspectorAccountId'."
+  ],
+  "critical_code_review_comments": [
+    "router_inspector.py:116-118 — dead branch `if isinstance(res, dict)` because the service returns a Pydantic model; field is silently dropped from the API response. Add a unit test to lock the response shape.",
+    "Lifecycle transition endpoints set `inspectorAccountId` in mongo AFTER building the response dict — the response therefore always lacks the field. Update the response with `ctx.account.id` after the `_set_inspector_account_id` call (same fix as claim).",
+    "Auth response field is `accessToken` (not `token`) — kept both as fallback in test helper for forward-compat.",
+    "Register endpoint rate-limited to 5/60s per IP — tests must cache & reuse registrations."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "94% (16/17)", "frontend": "n/a (out of scope)"},
+  "seed_data_creation": "Tests seed `car_requests` + `inspection_jobs` directly into MongoDB (db=test_database) with TEST_ prefix on emails and unique UUIDs on doc _ids. Cleanup not implemented — each run uses fresh UUIDs.",
+  "retest_needed": true,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Test file: /app/backend/tests/test_sprint1d1_inspector_gate.py. Re-run with `pytest tests/test_sprint1d1_inspector_gate.py -v`. Note: register endpoint is rate-limited to 5/60s per IP; helpers cache registrations and retry on 429 with backoff. After main agent fixes the response-shape bug in router_inspector.py:claim_job_endpoint, the single failing test (`test_full_lifecycle_with_dual_write`) should pass. Auth response token field is `accessToken`. JWT carries `accountId` (real account._id, distinct from `sub`/user_id).",
+  "rca_of_issue": "Reproduction: register provider_owner → POST /api/inspector/jobs/{id}/claim → response.job lacks `inspectorAccountId`. Root cause: router_inspector.py line 116 checks `isinstance(res, dict)` but `svc.claim_job` returns `InspectionJobOut` (Pydantic model). Mitigation: coerce to dict via `model_dump()` before merging the new field, or merge on the response dict directly."
+}

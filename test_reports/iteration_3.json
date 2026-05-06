@@ -1,0 +1,39 @@
+{
+  "summary": "Sprint 1D.2 Customer Domain Migration — full backend verification. 82 new tests in test_sprint1d2_customer_gate.py + 44 non-regression (1C/1D.1/1D.T) = 126 PASSED, 0 FAILED. Found and fixed 1 import bug introduced by the migration: app/customer/router.py was importing rebuild_customer_intelligence from `server` (no longer exposed there) — fixed to import from app.customer.service.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [],
+    "react_native_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_sprint1d2_customer_gate.py",
+    "/app/test_reports/pytest/sprint1d2_results.xml"
+  ],
+  "action_items": [
+    "None — Sprint 1D.2 is verified GREEN. Main agent may merge."
+  ],
+  "critical_code_review_comments": [
+    "router.py customer endpoint was importing rebuild_customer_intelligence from server.py — that function lives in app.customer.service now. Fixed (one-line import path)."
+  ],
+  "updated_files": [
+    "/app/backend/app/customer/router.py (fixed import path: app.customer.service)",
+    "/app/backend/tests/test_sprint1d2_customer_gate.py (NEW — 82 tests)"
+  ],
+  "success_rate": {"backend": "100% (126/126)", "frontend": "N/A (out of scope)"},
+  "seed_data_creation": "All TEST_-prefixed docs (favorites, behavior_events, web_bookings, car_requests) auto-cleaned per test.",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "test_sprint1d2_customer_gate.py covers: (a) require_account_kind helper unit tests (5), (b) full coverage matrix anon/provider/admin/customer across 12 GET + 3 POST + 1 DELETE endpoints (54), (c) anonymous-friendly + public reads (5), (d) dual-write of customerAccountId in customer_favorites / customer_behavior_events / web_bookings / car_requests (5), (e) 403 message clarity (1), (f) non-regression smoke (7). DB fixture reads MONGO_URL/DB_NAME from /app/backend/.env via dotenv (env vars get mangled by xargs+quotes).",
+  "rca_of_issue": "Bug: GET /api/customer/intelligence returned 500 ImportError. Root cause: router.py line 64 had `from server import rebuild_customer_intelligence`, but server.py no longer re-exports the function — it lives in app.customer.service. Fix: change import to `from app.customer.service import rebuild_customer_intelligence`. Verified: endpoint returns 200 for customer token after backend restart.",
+  "test_results": {
+    "test_sprint1d2_customer_gate.py": "82 passed (incl. 5 helper, 54 matrix, 3 anon-friendly, 2 public reads, 5 dual-write, 1 message clarity, 12 non-regression)",
+    "test_sprint1c_identity_runtime.py": "18 passed",
+    "test_sprint1d1_inspector_gate.py": "17 passed",
+    "test_sprint1dt_test_infra.py": "9 passed"
+  }
+}
