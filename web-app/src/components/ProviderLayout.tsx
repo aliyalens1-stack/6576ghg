@@ -3,6 +3,7 @@ import { useAuthStore } from '../stores/authStore';
 import { SquaresFour, Tray, CurrencyDollar, User, SignOut, Briefcase, WifiHigh, WifiX } from '@phosphor-icons/react';
 import { useState } from 'react';
 import Logo from './Logo';
+import WorkModeSwitcher from './WorkModeSwitcher';
 
 export default function ProviderLayout() {
   const { user, logout } = useAuthStore();
@@ -53,6 +54,7 @@ export default function ProviderLayout() {
         </nav>
 
         <div className="p-4 border-t border-ink-300 space-y-3">
+          <WorkModeSwitcher />
           <div className="text-[10px] uppercase tracking-widest text-gray-600 truncate">{user?.email}</div>
           <button onClick={handleLogout} className="btn-ghost w-full !py-2 text-xs hover:!border-red-500 hover:!text-red-400" data-testid="logout-btn">
             <SignOut size={14} weight="bold" /> Выйти

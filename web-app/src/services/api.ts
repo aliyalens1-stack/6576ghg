@@ -3,6 +3,7 @@ import { API } from '../shared/api-contracts';
 
 const API_URL = '/api';
 const api = axios.create({ baseURL: API_URL, headers: { 'Content-Type': 'application/json' } });
+export { api };
 
 api.interceptors.request.use((c) => {
   const t = localStorage.getItem('token');

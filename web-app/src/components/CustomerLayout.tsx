@@ -2,6 +2,7 @@ import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../stores/authStore';
 import { House, FileText, Car, User, SignOut } from '@phosphor-icons/react';
 import Logo from './Logo';
+import WorkModeSwitcher from './WorkModeSwitcher';
 
 export default function CustomerLayout() {
   const { user, logout } = useAuthStore();
@@ -38,6 +39,7 @@ export default function CustomerLayout() {
         </nav>
 
         <div className="p-4 border-t border-ink-300 space-y-3">
+          <WorkModeSwitcher />
           <div className="text-[10px] uppercase tracking-widest text-gray-600 truncate">{user?.firstName} {user?.lastName}</div>
           <button
             onClick={handleLogout}

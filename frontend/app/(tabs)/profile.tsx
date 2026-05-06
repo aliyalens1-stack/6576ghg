@@ -33,6 +33,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { useThemeContext } from '../../src/context/ThemeContext';
 import { useAuth } from '../../src/context/AuthContext';
+import AccountSwitcherModal from '../../src/components/AccountSwitcherModal';
 import { api } from '../../src/services/api';
 
 const LANGUAGES: { code: 'de' | 'en' | 'ru'; name: string; flag: string }[] = [
@@ -76,13 +77,14 @@ export default function ProfileScreen() {
   const router = useRouter();
   const { colors, isDark, setTheme } = useThemeContext();
   const { t, i18n } = useTranslation();
-  const { user, logout } = useAuth();
+  const { user, logout, accounts, activeAccount } = useAuth();
 
   const language = i18n.language as 'de' | 'en' | 'ru';
   const setLanguage = (lng: 'de' | 'en' | 'ru') => i18n.changeLanguage(lng);
   const currentLang = LANGUAGES.find((l) => l.code === language) || LANGUAGES[0];
 
   const [showLanguageModal, setShowLanguageModal] = useState(false);
+  const [showAccountSwitcher, setShowAccountSwitcher] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   // ─── Hub data ────────────────────────────────────────────────────────────
@@ -657,6 +659,34 @@ export default function ProfileScreen() {
             {t('profile_hub.settings_title')}
           </Text>
           <View style={[styles.listCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+            {accounts.length >= 2 && activeAccount && (
+              <>
+                <TouchableOpacity
+                  style={styles.settingsRow}
+                  onPress={() => setShowAccountSwitcher(true)}
+                  activeOpacity={0.7}
+                  testID="settings-work-mode"
+                >
+                  <View style={[styles.settingsIconWrap, { backgroundColor: 'rgba(168,85,247,0.15)' }]}>
+                    <Ionicons name="swap-horizontal" size={18} color="#A855F7" />
+                  </View>
+                  <Text style={[styles.settingsLabel, { color: colors.text }]}>
+                    {t('workMode.title')}
+                  </Text>
+                  <View style={styles.settingsValue}>
+                    <Text
+                      style={[styles.settingsValueText, { color: colors.textSecondary }]}
+                      numberOfLines={1}
+                      testID="settings-work-mode-current"
+                    >
+                      {t(`workMode.kind.${activeAccount.kind}`)}
+                    </Text>
+                    <Ionicons name="chevron-forward" size={16} color={colors.textSecondary} />
+                  </View>
+                </TouchableOpacity>
+                <View style={[styles.divider, { backgroundColor: colors.border }]} />
+              </>
+            )}
             <TouchableOpacity
               style={styles.settingsRow}
               onPress={() => setShowLanguageModal(true)}
@@ -768,6 +798,12 @@ export default function ProfileScreen() {
           )}
         </ScrollView>
       </SafeAreaView>
+
+      {/* ════════ Sprint 1E — Account switcher (Work mode) ════════ */}
+      <AccountSwitcherModal
+        visible={showAccountSwitcher}
+        onClose={() => setShowAccountSwitcher(false)}
+      />
 
       {/* ════════ Language modal ════════ */}
       <Modal

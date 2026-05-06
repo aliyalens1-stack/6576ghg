@@ -1420,5 +1420,22 @@
     "verdict_risky": "Risky",
     "verdict_neutral": "Acceptable",
     "open_listing": "Open original listing"
+  },
+  "workMode": {
+    "title": "Work mode",
+    "subtitle": "Choose how you want to work right now",
+    "active": "active",
+    "error": "Switch failed",
+    "errorDesc": "Please try again in a few seconds.",
+    "kind": {
+      "customer": "Customer",
+      "inspector": "Inspector",
+      "admin": "Admin",
+      "service_provider": "Workshop",
+      "dealer": "Dealer",
+      "transport": "Transport"
+    },
+    "adminInMobile": "Admin panel is available on the web",
+    "openAdminPanel": "Open Admin Panel"
   }
 }

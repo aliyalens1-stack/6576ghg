@@ -75,28 +75,63 @@
       "inspect_btn": "Auto prüfen"
     },
     "cards": {
-      "inspect": { "kicker": "Schnell · ab €149", "title": "Inserat prüfen lassen", "desc": "Link einfügen — wir schicken einen TÜV-Inspektor vor Ort, Festpreis und Bericht in 24 h." },
-      "selection": { "kicker": "Nach Ihrem Budget", "title": "Fahrzeug-Picking anfragen", "desc": "Marke / Modell / Budget angeben — Ihr persönlicher Picker findet und prüft Autos in mehreren Städten." },
-      "compare": { "kicker": "Sichere Entscheidung", "title": "Mehrere Autos vergleichen", "desc": "Direktvergleich von 3–5 geprüften Autos: Score, Risiken, geschätzte Reparaturkosten." }
+      "inspect": {
+        "kicker": "Schnell · ab €149",
+        "title": "Inserat prüfen lassen",
+        "desc": "Link einfügen — wir schicken einen TÜV-Inspektor vor Ort, Festpreis und Bericht in 24 h."
+      },
+      "selection": {
+        "kicker": "Nach Ihrem Budget",
+        "title": "Fahrzeug-Picking anfragen",
+        "desc": "Marke / Modell / Budget angeben — Ihr persönlicher Picker findet und prüft Autos in mehreren Städten."
+      },
+      "compare": {
+        "kicker": "Sichere Entscheidung",
+        "title": "Mehrere Autos vergleichen",
+        "desc": "Direktvergleich von 3–5 geprüften Autos: Score, Risiken, geschätzte Reparaturkosten."
+      }
     },
     "trust": {
-      "tuv": "TÜV-Inspektoren", "fixed_price": "Festpreis ab €149", "report_24h": "Bericht in 24 h", "photos_videos": "Fotos + Videos + 60-Punkte-Checkliste"
+      "tuv": "TÜV-Inspektoren",
+      "fixed_price": "Festpreis ab €149",
+      "report_24h": "Bericht in 24 h",
+      "photos_videos": "Fotos + Videos + 60-Punkte-Checkliste"
     },
     "packages": {
       "eyebrow": "Inspektions-Pakete",
       "title": "Sie zahlen die Plattform — nicht den Inspektor in bar",
       "subtitle": "Alles Geld läuft über die Plattform. Guthaben nutzen Sie einzeln.",
-      "one": { "label": "1 Inspektion", "perk1": "TÜV-Inspektor vor Ort", "perk2": "Voller 60-Punkte-Bericht", "perk3": "Fotos und Videos" },
-      "three": { "label": "3 Inspektionen", "badge": "BELIEBT", "perk1": "Drei Inspektionen zum Vorteilspreis", "perk2": "Autos in einem Bericht verglichen", "perk3": "Persönlicher Picker" },
-      "five": { "label": "5 Inspektionen", "perk1": "Fünf Inspektionen", "perk2": "Priorität in der Inspektor-Warteschlange", "perk3": "Abschluss-Empfehlung vom Picker" }
+      "one": {
+        "label": "1 Inspektion",
+        "perk1": "TÜV-Inspektor vor Ort",
+        "perk2": "Voller 60-Punkte-Bericht",
+        "perk3": "Fotos und Videos"
+      },
+      "three": {
+        "label": "3 Inspektionen",
+        "badge": "BELIEBT",
+        "perk1": "Drei Inspektionen zum Vorteilspreis",
+        "perk2": "Autos in einem Bericht verglichen",
+        "perk3": "Persönlicher Picker"
+      },
+      "five": {
+        "label": "5 Inspektionen",
+        "perk1": "Fünf Inspektionen",
+        "perk2": "Priorität in der Inspektor-Warteschlange",
+        "perk3": "Abschluss-Empfehlung vom Picker"
+      }
     },
     "how": {
       "eyebrow": "So funktioniert's",
       "title": "Vom Link zur Entscheidung in 24 Stunden",
-      "step1_title": "Sie stellen die Anfrage", "step1_text": "mobile.de-Link oder Marke/Modell + Städte. Bezahlung per Paket.",
-      "step2_title": "Inspektor nimmt an", "step2_text": "Das System weist den nächstgelegenen geprüften Picker in der Stadt des Autos zu.",
-      "step3_title": "60-Punkte-Checkliste", "step3_text": "Karosserie, Lack, Motor, Getriebe, OBD, Fotos und Videos.",
-      "step4_title": "Bericht & Empfehlung", "step4_text": "Score, Risiken, Reparaturschätzung. Kaufen, verhandeln oder absagen."
+      "step1_title": "Sie stellen die Anfrage",
+      "step1_text": "mobile.de-Link oder Marke/Modell + Städte. Bezahlung per Paket.",
+      "step2_title": "Inspektor nimmt an",
+      "step2_text": "Das System weist den nächstgelegenen geprüften Picker in der Stadt des Autos zu.",
+      "step3_title": "60-Punkte-Checkliste",
+      "step3_text": "Karosserie, Lack, Motor, Getriebe, OBD, Fotos und Videos.",
+      "step4_title": "Bericht & Empfehlung",
+      "step4_text": "Score, Risiken, Reparaturschätzung. Kaufen, verhandeln oder absagen."
     }
   },
   "selection_request": {
@@ -104,9 +139,14 @@
     "title": "Fahrzeug-Picking anfragen",
     "subtitle": "Beschreiben Sie Ihr Wunschauto — lokale Picker suchen und prüfen Varianten für Sie.",
     "fields": {
-      "brand": "Marke", "model": "Modell", "budget_max": "Budget (max, €)", "cities": "Städte / Länder",
-      "links": "Inserat-Links (optional)", "links_placeholder": "https://www.mobile.de/… (einer pro Zeile)",
-      "comment": "Kommentar", "comment_placeholder": "Baujahr, Ausstattung, Zustand — alles Wichtige…"
+      "brand": "Marke",
+      "model": "Modell",
+      "budget_max": "Budget (max, €)",
+      "cities": "Städte / Länder",
+      "links": "Inserat-Links (optional)",
+      "links_placeholder": "https://www.mobile.de/… (einer pro Zeile)",
+      "comment": "Kommentar",
+      "comment_placeholder": "Baujahr, Ausstattung, Zustand — alles Wichtige…"
     },
     "add": "Hinzufügen",
     "add_link": "Link hinzufügen",
@@ -139,7 +179,9 @@
     "title": "Fahrzeug-Vergleich",
     "subtitle": "2–5 Inspektionen laden — wir vergleichen nach Score, Risiken und Empfehlung.",
     "car": "Auto",
-    "risks_low": "Geringes Risiko", "risks_medium": "Mittleres Risiko", "risks_high": "Hohes Risiko",
+    "risks_low": "Geringes Risiko",
+    "risks_medium": "Mittleres Risiko",
+    "risks_high": "Hohes Risiko",
     "demo_hint": "Demo-Daten. Kompletter Flow ab Sprint 6 (Inspektionsberichte)."
   },
   "repair": {
@@ -498,5 +540,22 @@
       "mobile": "Mobil",
       "fast_response": "Schnell"
     }
+  },
+  "workMode": {
+    "title": "Modus",
+    "subtitle": "Wählen Sie, wie Sie gerade arbeiten möchten",
+    "active": "aktiv",
+    "error": "Wechsel fehlgeschlagen",
+    "errorDesc": "Bitte versuchen Sie es in wenigen Sekunden erneut.",
+    "kind": {
+      "customer": "Käufer",
+      "inspector": "Prüfer",
+      "admin": "Admin",
+      "service_provider": "Werkstatt",
+      "dealer": "Händler",
+      "transport": "Transporteur"
+    },
+    "adminInMobile": "Adminbereich ist im Web verfügbar",
+    "openAdminPanel": "Adminbereich öffnen"
   }
 }

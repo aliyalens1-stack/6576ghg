@@ -75,28 +75,63 @@
       "inspect_btn": "Inspect car"
     },
     "cards": {
-      "inspect": { "kicker": "Fast · from €149", "title": "Inspect a listing", "desc": "Paste a listing URL — we dispatch a TÜV-inspector nearby, give a fixed price and a report in 24h." },
-      "selection": { "kicker": "To your budget", "title": "Request a selection", "desc": "Tell us the brand / model / budget — your personal picker finds and inspects cars across cities." },
-      "compare": { "kicker": "Confident decision", "title": "Compare several cars", "desc": "Side-by-side compare of 3–5 inspected cars by score, risks and estimated repair cost." }
+      "inspect": {
+        "kicker": "Fast · from €149",
+        "title": "Inspect a listing",
+        "desc": "Paste a listing URL — we dispatch a TÜV-inspector nearby, give a fixed price and a report in 24h."
+      },
+      "selection": {
+        "kicker": "To your budget",
+        "title": "Request a selection",
+        "desc": "Tell us the brand / model / budget — your personal picker finds and inspects cars across cities."
+      },
+      "compare": {
+        "kicker": "Confident decision",
+        "title": "Compare several cars",
+        "desc": "Side-by-side compare of 3–5 inspected cars by score, risks and estimated repair cost."
+      }
     },
     "trust": {
-      "tuv": "TÜV inspectors", "fixed_price": "Fixed price from €149", "report_24h": "Report within 24h", "photos_videos": "Photos + videos + 60-point checklist"
+      "tuv": "TÜV inspectors",
+      "fixed_price": "Fixed price from €149",
+      "report_24h": "Report within 24h",
+      "photos_videos": "Photos + videos + 60-point checklist"
     },
     "packages": {
       "eyebrow": "Inspection packages",
       "title": "Pay the platform — never chase the inspector with cash",
       "subtitle": "All money flows through the platform. Use credits one by one.",
-      "one": { "label": "1 inspection", "perk1": "TÜV-inspector on-site", "perk2": "Full 60-point report", "perk3": "Photos and videos" },
-      "three": { "label": "3 inspections", "badge": "MOST POPULAR", "perk1": "Three inspections, one price", "perk2": "Cars compared in one report", "perk3": "Personal picker" },
-      "five": { "label": "5 inspections", "perk1": "Five inspections", "perk2": "Priority in inspector queue", "perk3": "Final picker recommendation" }
+      "one": {
+        "label": "1 inspection",
+        "perk1": "TÜV-inspector on-site",
+        "perk2": "Full 60-point report",
+        "perk3": "Photos and videos"
+      },
+      "three": {
+        "label": "3 inspections",
+        "badge": "MOST POPULAR",
+        "perk1": "Three inspections, one price",
+        "perk2": "Cars compared in one report",
+        "perk3": "Personal picker"
+      },
+      "five": {
+        "label": "5 inspections",
+        "perk1": "Five inspections",
+        "perk2": "Priority in inspector queue",
+        "perk3": "Final picker recommendation"
+      }
     },
     "how": {
       "eyebrow": "How it works",
       "title": "From listing URL to decision in 24 hours",
-      "step1_title": "You place a request", "step1_text": "A mobile.de URL or brand/model + cities. Pay via a package.",
-      "step2_title": "Inspector accepts", "step2_text": "System assigns the nearest verified picker in the car's city.",
-      "step3_title": "60-point checklist", "step3_text": "Body, paint, engine, gearbox, OBD, photos and videos.",
-      "step4_title": "Report & recommendation", "step4_text": "Score, risks, repair estimate. Buy, bargain, or skip."
+      "step1_title": "You place a request",
+      "step1_text": "A mobile.de URL or brand/model + cities. Pay via a package.",
+      "step2_title": "Inspector accepts",
+      "step2_text": "System assigns the nearest verified picker in the car's city.",
+      "step3_title": "60-point checklist",
+      "step3_text": "Body, paint, engine, gearbox, OBD, photos and videos.",
+      "step4_title": "Report & recommendation",
+      "step4_text": "Score, risks, repair estimate. Buy, bargain, or skip."
     }
   },
   "selection_request": {
@@ -104,9 +139,14 @@
     "title": "Request a car selection",
     "subtitle": "Describe what you're looking for — local pickers in the right cities will find and inspect options for you.",
     "fields": {
-      "brand": "Brand", "model": "Model", "budget_max": "Budget (max, €)", "cities": "Cities / countries",
-      "links": "Listing URLs (optional)", "links_placeholder": "https://www.mobile.de/… (one per line)",
-      "comment": "Comment", "comment_placeholder": "Year, trim, condition — anything relevant…"
+      "brand": "Brand",
+      "model": "Model",
+      "budget_max": "Budget (max, €)",
+      "cities": "Cities / countries",
+      "links": "Listing URLs (optional)",
+      "links_placeholder": "https://www.mobile.de/… (one per line)",
+      "comment": "Comment",
+      "comment_placeholder": "Year, trim, condition — anything relevant…"
     },
     "add": "Add",
     "add_link": "Add link",
@@ -139,7 +179,9 @@
     "title": "Car comparison",
     "subtitle": "Upload 2–5 inspections — we'll compare them by score, risks and recommendation.",
     "car": "Car",
-    "risks_low": "Low risk", "risks_medium": "Medium risk", "risks_high": "High risk",
+    "risks_low": "Low risk",
+    "risks_medium": "Medium risk",
+    "risks_high": "High risk",
     "demo_hint": "Demo data. Full flow ships after Sprint 6 (inspection reports)."
   },
   "repair": {
@@ -498,5 +540,22 @@
       "mobile": "Mobile",
       "fast_response": "Fast"
     }
+  },
+  "workMode": {
+    "title": "Work mode",
+    "subtitle": "Choose how you want to work right now",
+    "active": "active",
+    "error": "Switch failed",
+    "errorDesc": "Please try again in a few seconds.",
+    "kind": {
+      "customer": "Customer",
+      "inspector": "Inspector",
+      "admin": "Admin",
+      "service_provider": "Workshop",
+      "dealer": "Dealer",
+      "transport": "Transport"
+    },
+    "adminInMobile": "Admin panel is available on the web",
+    "openAdminPanel": "Open Admin Panel"
   }
 }

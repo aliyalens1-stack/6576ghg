@@ -11,6 +11,20 @@ interface User {
   lastName: string;
 }
 
+// Sprint 1E: identity layer — accounts + activeAccount come from /auth/me
+// envelope (and login/switch responses). Single shape across all surfaces.
+export interface AccountView {
+  id: string;
+  userId: string;
+  kind: 'customer' | 'inspector' | 'admin' | 'service_provider' | 'dealer' | 'transport';
+  status: string;
+  displayName: string;
+  isPrimary: boolean;
+  isLegacyShim?: boolean;
+  isLegacy?: boolean;
+  capabilities: string[];
+}
+
 // Sprint: Mobile Welcome + Auth Role Flow
 export type UserMode = 'guest' | 'customer' | 'provider' | 'admin';
 export type AuthIntent = 'find_master' | 'provider_work' | 'login' | 'guest' | null;
@@ -32,6 +46,10 @@ interface AuthContextType {
   token: string | null;
   isLoading: boolean;
   isAuthenticated: boolean;
+  // Sprint 1E: identity envelope
+  accounts: AccountView[];
+  activeAccount: AccountView | null;
+  switchAccount: (accountId: string) => Promise<AccountView | null>;
   // Sprint: role-based welcome flow
   mode: UserMode;
   intent: AuthIntent;
@@ -70,16 +88,38 @@ const INTENT_KEY = 'auth.intent';
 const PENDING_INTENT_KEY = 'auth.pendingIntent';
 const PENDING_INTENT_PARAMS_KEY = 'auth.pendingIntentParams';
 
-function deriveMode(role?: string): UserMode {
+// Sprint 1E: deriveMode now prefers active account.kind. Legacy `role` is the
+// fallback for users who have not yet been touched by the account switcher.
+function deriveMode(role?: string, activeKind?: string): UserMode {
+  // Active account.kind is the source of truth post-1C/1D.
+  if (activeKind === 'admin') return 'admin';
+  if (activeKind === 'inspector' || activeKind === 'service_provider' || activeKind === 'transport') return 'provider';
+  if (activeKind === 'customer') return 'customer';
+  if (activeKind === 'dealer') return 'provider'; // future: dedicated dealer mode
+  // Fallback to legacy role
   if (!role) return 'guest';
   if (role === 'admin') return 'admin';
   if (role.startsWith('provider')) return 'provider';
   return 'customer';
 }
 
+// Sprint 1E: normalize the three response shapes into one. /auth/login and
+// /auth/register return { accessToken, user, accounts, activeAccount }.
+// /auth/me returns { user, accounts, activeAccount }. /auth/switch-account
+// returns { accessToken, accounts, activeAccount } (no user).
+function normalizeIdentity(payload: any) {
+  if (!payload || typeof payload !== 'object') return { user: null, accounts: [], activeAccount: null };
+  const userObj = payload.user ?? null;
+  const accounts: AccountView[] = Array.isArray(payload.accounts) ? payload.accounts : [];
+  const activeAccount: AccountView | null = payload.activeAccount ?? null;
+  return { user: userObj, accounts, activeAccount };
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
+  const [accounts, setAccounts] = useState<AccountView[]>([]);
+  const [activeAccount, setActiveAccount] = useState<AccountView | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [mode, setMode] = useState<UserMode>('guest');
   const [intent, setIntent] = useState<AuthIntent>(null);
@@ -119,15 +159,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
           try {
             const response = await api.get('/auth/me');
-            console.log('[AuthContext] User loaded:', response.data?.email);
-            setUser(response.data);
-            setMode(deriveMode(response.data?.role));
+            const norm = normalizeIdentity(response.data);
+            console.log('[AuthContext] User loaded:', norm.user?.email, 'kind:', norm.activeAccount?.kind);
+            setUser(norm.user);
+            setAccounts(norm.accounts);
+            setActiveAccount(norm.activeAccount);
+            setMode(deriveMode(norm.user?.role, norm.activeAccount?.kind));
           } catch (error: any) {
             console.log('[AuthContext] Failed to load user, clearing token:', error?.message);
             await AsyncStorage.removeItem(TOKEN_KEY);
             delete api.defaults.headers.common['Authorization'];
             setToken(null);
             setUser(null);
+            setAccounts([]);
+            setActiveAccount(null);
           }
         }
       } catch (error) {
@@ -145,33 +190,39 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = useCallback(async (email: string, password: string) => {
     console.log('[AuthContext] Login attempt for:', email);
     const response = await api.post('/auth/login', { email, password });
-    const { accessToken, user: userData } = response.data;
+    const { accessToken } = response.data;
+    const norm = normalizeIdentity(response.data);
 
     await AsyncStorage.setItem(TOKEN_KEY, accessToken);
     api.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
 
     setToken(accessToken);
-    setUser(userData);
-    const nextMode = deriveMode(userData?.role);
+    setUser(norm.user);
+    setAccounts(norm.accounts);
+    setActiveAccount(norm.activeAccount);
+    const nextMode = deriveMode(norm.user?.role, norm.activeAccount?.kind);
     setMode(nextMode);
     await AsyncStorage.setItem(MODE_KEY, nextMode);
 
-    console.log('[AuthContext] Login complete, user:', userData?.email, 'mode:', nextMode);
-    return userData;
+    console.log('[AuthContext] Login complete, user:', norm.user?.email, 'mode:', nextMode);
+    return norm.user;
   }, []);
 
   // 🔥 REGISTER
   const register = useCallback(async (data: RegisterData) => {
     console.log('[AuthContext] Register attempt for:', data.email, 'role:', data.role);
     const response = await api.post('/auth/register', data);
-    const { accessToken, user: userData } = response.data;
+    const { accessToken } = response.data;
+    const norm = normalizeIdentity(response.data);
 
     await AsyncStorage.setItem(TOKEN_KEY, accessToken);
     api.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
 
     setToken(accessToken);
-    setUser(userData);
-    const nextMode = deriveMode(userData?.role);
+    setUser(norm.user);
+    setAccounts(norm.accounts);
+    setActiveAccount(norm.activeAccount);
+    const nextMode = deriveMode(norm.user?.role, norm.activeAccount?.kind);
     setMode(nextMode);
     await AsyncStorage.setItem(MODE_KEY, nextMode);
 
@@ -187,6 +238,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     setToken(null);
     setUser(null);
+    setAccounts([]);
+    setActiveAccount(null);
     setMode('guest');
     setIntent(null);
     setPendingIntentState(null);
@@ -194,6 +247,41 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     console.log('[AuthContext] Logout complete');
   }, []);
+
+  // Sprint 1E: switch active account. Backend mints a new JWT scoped to
+  // the requested account; we save the new token and refresh local state.
+  // The mode (and therefore navigation) auto-updates because deriveMode()
+  // reads activeAccount.kind first.
+  const switchAccount = useCallback(async (accountId: string): Promise<AccountView | null> => {
+    if (!token) {
+      console.warn('[AuthContext] switchAccount called without a token');
+      return null;
+    }
+    console.log('[AuthContext] Switching to account:', accountId);
+    const response = await api.post('/auth/switch-account', { accountId });
+    const { accessToken } = response.data;
+    const norm = normalizeIdentity(response.data);
+
+    if (!accessToken || !norm.activeAccount) {
+      console.warn('[AuthContext] switch-account response malformed:', response.data);
+      return null;
+    }
+
+    await AsyncStorage.setItem(TOKEN_KEY, accessToken);
+    api.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
+
+    setToken(accessToken);
+    setAccounts(norm.accounts);
+    setActiveAccount(norm.activeAccount);
+    // user object isn't returned by switch-account — keep the prior one;
+    // role didn't change, only active persona did.
+    const nextMode = deriveMode(user?.role, norm.activeAccount.kind);
+    setMode(nextMode);
+    await AsyncStorage.setItem(MODE_KEY, nextMode);
+
+    console.log('[AuthContext] Switched to', norm.activeAccount.kind, '— mode:', nextMode);
+    return norm.activeAccount;
+  }, [token, user?.role]);
 
   // 🔥 Set logout handler for 401 interceptor
   useEffect(() => {
@@ -206,8 +294,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     try {
       const response = await api.get('/auth/me');
-      setUser(response.data);
-      setMode(deriveMode(response.data?.role));
+      const norm = normalizeIdentity(response.data);
+      setUser(norm.user);
+      setAccounts(norm.accounts);
+      setActiveAccount(norm.activeAccount);
+      setMode(deriveMode(norm.user?.role, norm.activeAccount?.kind));
     } catch (error) {
       console.log('[AuthContext] Refresh user failed');
     }
@@ -272,6 +363,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     token,
     isLoading,
     isAuthenticated,
+    accounts,
+    activeAccount,
+    switchAccount,
     mode,
     intent,
     isGuest,

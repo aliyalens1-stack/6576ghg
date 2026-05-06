@@ -1420,5 +1420,22 @@
     "verdict_risky": "Riskant",
     "verdict_neutral": "Akzeptabel",
     "open_listing": "Originalanzeige öffnen"
+  },
+  "workMode": {
+    "title": "Modus",
+    "subtitle": "Wählen Sie, wie Sie gerade arbeiten möchten",
+    "active": "aktiv",
+    "error": "Wechsel fehlgeschlagen",
+    "errorDesc": "Bitte versuchen Sie es in wenigen Sekunden erneut.",
+    "kind": {
+      "customer": "Käufer",
+      "inspector": "Prüfer",
+      "admin": "Admin",
+      "service_provider": "Werkstatt",
+      "dealer": "Händler",
+      "transport": "Transporteur"
+    },
+    "adminInMobile": "Adminbereich ist im Web verfügbar",
+    "openAdminPanel": "Adminbereich öffnen"
   }
 }
