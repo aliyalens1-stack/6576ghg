@@ -15,7 +15,11 @@ from pydantic import BaseModel, Field
 import base64
 
 from app.auto_requests import media as media_svc
-from app.auto_requests.auth import get_user_id_required, get_user_id_optional
+from app.auto_requests.auth import (
+    get_user_id_required,
+    get_user_id_optional,
+    get_user_kind_optional,
+)
 from app.core.security import verify_admin_token
 from app.core.db import get_db
 
@@ -146,7 +150,11 @@ public_media_router = APIRouter(prefix="/api/media", tags=["media"])
 
 
 @public_media_router.get("/{media_id}")
-async def serve_media(media_id: str, uid: Optional[str] = Depends(get_user_id_optional)):
+async def serve_media(
+    media_id: str,
+    uid: Optional[str] = Depends(get_user_id_optional),
+    kind: Optional[str] = Depends(get_user_kind_optional),
+):
     """Serve raw bytes. Authorize: must be admin, owning inspector, or owning customer.
 
     For the v1 image gallery in mobile/web, clients pass JWT Authorization header
@@ -155,10 +163,10 @@ async def serve_media(media_id: str, uid: Optional[str] = Depends(get_user_id_op
     """
     if not uid:
         raise HTTPException(401, "auth required")
-    # Admin shortcut: check token claims
-    db = get_db()
-    user = await db.users.find_one({"_id": uid}, {"role": 1})
-    is_admin = bool(user and user.get("role") == "admin")
+    # Sprint 1D.3: admin-check moved off `users.role` lookup → JWT `kind`
+    # claim (set by 1C `issue_account_jwt`). Single source of truth, and
+    # respects account-switching once 1E ships.
+    is_admin = (kind == "admin")
     if not await media_svc.can_user_view_media(media_id, uid, is_admin=is_admin):
         raise HTTPException(403, "forbidden")
     res = await media_svc.fetch_payload(media_id)

@@ -595,7 +595,7 @@ async def prod_readiness_middleware(request: Request, call_next):
 # ═══════════════════════════════════════════════
 
 @app.post("/api/admin/demand/push-providers")
-async def demand_push_providers(request: Request, _=Depends(verify_admin_token)):
+async def demand_push_providers(request: Request, admin_ctx: dict = Depends(verify_admin_token)):
     """Push notification to providers in a zone with high demand"""
     body = await request.json()
     zone_id = body.get("zoneId", "all")
@@ -610,12 +610,15 @@ async def demand_push_providers(request: Request, _=Depends(verify_admin_token))
     # Get push devices for providers
     devices = await db.push_devices.find({"role": {"$in": ["provider_owner", "provider_manager"]}, "isActive": True}, {"_id": 0}).to_list(200)
     
-    # Log the action
+    # Log the action — Sprint 1D.3: forward-write admin identity from
+    # `verify_admin_token` adapter (delegates to identity_runtime.require_admin).
     action_log = {
         "id": uid(), "type": "demand_push", "zoneId": zone_id,
         "targetCount": len(devices), "message": message,
         "minScore": min_score, "createdAt": now_utc().isoformat(),
         "status": "sent",
+        "adminAccountId": admin_ctx.get("accountId"),
+        "adminUserId": admin_ctx.get("userId") or admin_ctx.get("sub"),
     }
     await db.governance_actions.insert_one(action_log)
     action_log.pop("_id", None)
@@ -624,16 +627,19 @@ async def demand_push_providers(request: Request, _=Depends(verify_admin_token))
 
 
 @app.post("/api/admin/demand/{zone_id}/boost-supply")
-async def boost_supply(zone_id: str, request: Request, _=Depends(verify_admin_token)):
+async def boost_supply(zone_id: str, request: Request, admin_ctx: dict = Depends(verify_admin_token)):
     """Boost supply in a zone - increase visibility for providers"""
     body = await request.json()
     boost_level = body.get("boostLevel", 1.5)
     duration_minutes = body.get("durationMinutes", 30)
     
+    # Sprint 1D.3: forward-write admin identity (see demand_push_providers).
     action_log = {
         "id": uid(), "type": "boost_supply", "zoneId": zone_id,
         "boostLevel": boost_level, "durationMinutes": duration_minutes,
         "createdAt": now_utc().isoformat(), "status": "active",
+        "adminAccountId": admin_ctx.get("accountId"),
+        "adminUserId": admin_ctx.get("userId") or admin_ctx.get("sub"),
     }
     await db.governance_actions.insert_one(action_log)
     action_log.pop("_id", None)
@@ -941,7 +947,7 @@ async def demand_action_recommendations(request: Request, zoneId: str = "all", _
 
 
 @app.post("/api/admin/demand/actions/run")
-async def demand_action_run(request: Request, _=Depends(verify_admin_token)):
+async def demand_action_run(request: Request, admin_ctx: dict = Depends(verify_admin_token)):
     """Execute a demand action chain — real before/after ratios from zone snapshots."""
     body = await request.json()
     zone_id = body.get("zoneId", "all")
@@ -985,6 +991,8 @@ async def demand_action_run(request: Request, _=Depends(verify_admin_token)):
     execution = {
         "id": uid(), "zoneId": zone_id, "chainId": chain_id, "mode": mode,
         "status": "completed", "triggeredBy": "admin",
+        "adminAccountId": admin_ctx.get("accountId"),
+        "adminUserId": admin_ctx.get("userId") or admin_ctx.get("sub"),
         "steps": steps,
         "resultMetrics": {
             # AFTER ratio/ETA will be captured by feedback loop (~3min). Store BEFORE + predicted.

@@ -271,10 +271,14 @@ async def explain_my_ranking(
         raise HTTPException(401, "Invalid token")
 
     role = payload.get("role")
+    kind = payload.get("kind")
     user_id = payload.get("sub")
 
     resolved_slug: Optional[str] = None
-    if role == "admin" and providerSlug:
+    # Sprint 1D.3: admin override now reads `kind` (active account, set by 1C
+    # `issue_account_jwt`), not raw legacy `role`. Same source of truth as
+    # `require_admin()` in identity_runtime — single semantic for all admin gates.
+    if kind == "admin" and providerSlug:
         # Admin override — debug любого провайдера
         resolved_slug = providerSlug
     elif role in ("provider_owner", "provider", "provider_manager"):

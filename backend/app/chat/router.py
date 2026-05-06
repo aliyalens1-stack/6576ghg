@@ -192,7 +192,12 @@ async def list_messages(thread_id: str, payload: dict = Depends(verify_user_toke
     # Access: customer (participantUserId) OR provider (matching slug) OR admin
     is_customer = t.get("participantUserId") == user_id
     is_provider = role == "provider" and t.get("providerSlug") and t.get("providerSlug") == _provider_slug_from(payload)
-    is_admin = role == "admin"
+    # Sprint 1D.3: switched off raw legacy role check (now reads JWT kind claim).
+    # `kind` is the JWT claim populated by 1C `issue_account_jwt` from the
+    # active `account.kind` — single source of truth, and reflects account
+    # switching once 1E ships (admin user in customer persona will lose
+    # admin chat privileges, which is the desired semantic).
+    is_admin = payload.get("kind") == "admin"
     if not (is_customer or is_provider or is_admin):
         raise HTTPException(403, "Not your thread")
     cursor = db.chat_messages.find({"threadId": thread_id}, {"_id": 0}).sort("createdAt", 1)
@@ -247,7 +252,8 @@ async def mark_read(thread_id: str, payload: dict = Depends(verify_user_token)):
         raise HTTPException(404, "Thread not found")
     is_customer = t.get("participantUserId") == user_id
     is_provider = role == "provider" and t.get("providerSlug") and t.get("providerSlug") == _provider_slug_from(payload)
-    is_admin = role == "admin"
+    # Sprint 1D.3: see comment on `list_messages` — same migration to `kind`.
+    is_admin = payload.get("kind") == "admin"
     if not (is_customer or is_provider or is_admin):
         raise HTTPException(403, "Not your thread")
     update_filter: dict = {}
